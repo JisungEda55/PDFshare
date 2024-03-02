@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Viewer with PDF.js</title>
+  <!-- PDF.js library -->
+  <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+</head>
+<body>
+
+  <h1>PDF Viewer</h1>
+
+  <div>
+    <!-- PDF.js container -->
+    <canvas id="pdf-viewer"></canvas>
+  </div>
+
+  <script>
+    // PDF 파일의 URL
+    var pdfUrl = 'https://example.com/path/to/your/file.pdf';
+
+    // PDF.js를 초기화하고 PDF를 로드하는 함수
+    function renderPdf(url) {
+      // PDF.js 설정
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+      // PDF.js에서 사용할 요소 선택
+      var canvas = document.getElementById('pdf-viewer');
+      var context = canvas.getContext('2d');
+
+      // PDF.js로 PDF 파일 로드
+      pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
+        // 첫 번째 페이지 가져오기
+        return pdfDoc.getPage(1);
+      }).then(function(page) {
+        // 페이지의 크기 설정
+        var viewport = page.getViewport({ scale: 1.5 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // 페이지 렌더링
+        var renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+    }
+
+    // 페이지 로드 시 PDF 렌더링 시작
+    window.onload = function() {
+      renderPdf(pdfUrl);
+    };
+  </script>
+
+</body>
+</html>
