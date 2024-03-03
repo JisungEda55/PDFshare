@@ -1,58 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Viewer with PDF.js</title>
-  <!-- PDF.js library -->
-  <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
-</head>
-<body>
-
-  <h1>PDF Viewer</h1>
-
-  <div>
-    <!-- PDF.js container -->
-    <canvas id="pdf-viewer"></canvas>
-  </div>
-
-  <script>
-    // PDF 파일의 URL
-    var pdfUrl = 'https://github.com/JisungEda55/PDFshare/files/14470579/PDFshare.s.test.PDF.pdf';
-
-    // PDF.js를 초기화하고 PDF를 로드하는 함수
-    function renderPdf(url) {
-      // PDF.js 설정
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-
-      // PDF.js에서 사용할 요소 선택
-      var canvas = document.getElementById('pdf-viewer');
-      var context = canvas.getContext('2d');
-
-      // PDF.js로 PDF 파일 로드
-      pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
-        // 첫 번째 페이지 가져오기
-        return pdfDoc.getPage(1);
-      }).then(function(page) {
-        // 페이지의 크기 설정
-        var viewport = page.getViewport({ scale: 1.5 });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // 페이지 렌더링
-        var renderContext = {
-          canvasContext: context,
-          viewport: viewport
-        };
-        page.render(renderContext);
-      });
+  <title>일정 알림</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: rgb(28, 28, 30);
+      font-family: 'TheJamsil', sans-serif;
     }
 
-    // 페이지 로드 시 PDF 렌더링 시작
-    window.onload = function() {
-      renderPdf(pdfUrl);
-    };
-  </script>
+    #message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 24px;
+      color: #fff;
+      background-color: rgb(0, 122, 255);
+      padding: 5px;
+      border-radius: 13px;
+      font-family: 'TheJamsil', normal;
+      font-weight: 500;
+    }
+  </style>
+  <style>
+    @font-face {
+      font-family: 'TheJamsil';
+      font-weight: 500;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/TheJamsil/TheJamsil-Medium.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/TheJamsil/TheJamsil-Medium.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/TheJamsil/TheJamsil-Medium.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/TheJamsil/TheJamsil-Medium.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/TheJamsil/TheJamsil-Medium.ttf') format("truetype");
+      font-display: swap;
+    }
+  </style>
+</head>
 
+<body>
+  <div id="message"></div>
+  <script>
+    var messageElement = document.getElementById('message');
+    messageElement.style.display = 'none';
+    var hasPlayedNotification = false;
+
+    // 알림음을 재생하는 함수
+    function playNotificationSound() {
+      var audio = new Audio('https://github.com/JisungEda55/PDFshare/raw/main/zelda-audio.mp3');
+      audio.play();
+    }
+
+    function formatTime(time) {
+      return (time < 10 ? '0' : '') + time;
+    }
+
+    function updateMessage() {
+      var currentTime = new Date();
+      var schedule = [
+        { start: "06:57:01", end: "06:59", activity: "LIVE SOON! :D" },
+         { start: "07:00:01", end: "07:50", activity: "07:00~07:50 (50')" },
+	{ start: "07:50:01", end: "08:00", activity: "07:50~08:00 (10')" },
+  	{ start: "08:00:01", end: "08:50", activity: "08:00~08:50 (50')" },
+  	{ start: "08:50:01", end: "09:00", activity: "08:50~09:00 (10')" },
+  	{ start: "09:00:01", end: "09:50", activity: "09:00~09:50 (50')" },
+  	{ start: "09:50:01", end: "10:00", activity: "09:50~10:00 (10')" },
+  	{ start: "10:00:01", end: "10:50", activity: "10:00~10:50 (50')" },
+  	{ start: "10:50:01", end: "11:00", activity: "10:50~11:00 (10')" },
+  	{ start: "11:00:01", end: "11:50", activity: "11:00~11:50 (50')" },
+  	{ start: "11:50:01", end: "12:00", activity: "11:50~12:00 (10')" },
+  	{ start: "12:00:01", end: "13:00", activity: "12:00~13:00 (60')" },
+ 	 { start: "13:00:01", end: "13:50", activity: "13:00~13:50 (50')" },
+	  { start: "13:50:01", end: "14:00", activity: "13:50~14:00 (10')" },	
+  	{ start: "14:00:01", end: "14:50", activity: "14:00~14:50 (50')" },
+ 	 { start: "14:50:01", end: "15:00", activity: "14:50~15:00 (10')" },
+  	{ start: "15:00:01", end: "15:50", activity: "15:00~15:50 (50')" },
+ 	 { start: "15:50:01", end: "16:00", activity: "15:50~16:00 (10')" },
+ 	 { start: "16:00:01", end: "16:50", activity: "16:00~16:50 (50')" },
+ 	 { start: "16:50:01", end: "17:00", activity: "16:50~17:00 (10')" },
+ 	 { start: "17:00:01", end: "17:50", activity: "17:00~17:50 (50')" },
+ 	 { start: "17:50:01", end: "18:00", activity: "17:50~18:00 (10')" },
+  	{ start: "18:00:01", end: "18:50", activity: "18:00~18:50 (50')" },
+  	{ start: "18:50:01", end: "20:00", activity: "18:50~20:00 (70')" },
+  	{ start: "20:00:01", end: "20:50", activity: "20:00~20:50 (50')" },
+ 	 { start: "20:50:01", end: "21:00", activity: "20:50~21:00 (10')" },
+ 	 { start: "21:00:01", end: "21:50", activity: "21:00~21:50 (50')" },
+  	{ start: "21:50:01", end: "22:00", activity: "21:50~22:00 (10')" },
+  	{ start: "22:00:01", end: "22:50", activity: "22:00~22:50 (50')" },
+  	{ start: "22:50:01", end: "23:00", activity: "22:50~23:00 (10')" },
+  	{ start: "23:01:01", end: "23:59", activity: "22:50~23:00 (10')" },
+        { start: "00:00:01", end: "06:56", activity: "UnPluged :( " }
+      ];
+
+      messageElement.innerHTML = ''; // Clear previous content
+
+      for (var i = 0; i < schedule.length; i++) {
+        var start = new Date(currentTime.toDateString() + ' ' + schedule[i].start);
+        var end = new Date(currentTime.toDateString() + ' ' + schedule[i].end);
+
+        // Adjust the end date if it's on the next day
+        if (end < start) {
+          end.setDate(end.getDate() + 1);
+        }
+
+        if (currentTime >= start && currentTime <= end) {
+          var activityElement = document.createElement('div');
+          activityElement.textContent = schedule[i].activity;
+
+          // Calculate remaining time
+          var remainingTime = end - currentTime;
+          var remainingMinutes = Math.floor(remainingTime / (1000 * 60));
+          var remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+          var remainingTimeElement = document.createElement('div');
+          remainingTimeElement.textContent = `Left: [${remainingMinutes}분 ${formatTime(remainingSeconds)}초]`;
+
+          messageElement.appendChild(activityElement);
+          messageElement.appendChild(remainingTimeElement);
+          messageElement.style.display = 'flex';
+
+          // 알림음 재생 (한 번만 재생)
+          if (!hasPlayedNotification) {
+            playNotificationSound();
+            hasPlayedNotification = true;
+          }
+          break;
+        }
+      }
+
+      // 다음 시간대에 메시지가 없을 경우 알림음을 다시 허용
+      if (messageElement.innerHTML === '') {
+        hasPlayedNotification = false;
+      }
+    }
+
+    function synchronizeTime() {
+      var currentTime = new Date();
+      var kstOffset = 9 * 60; // KST는 UTC+9
+      var kstTime = new Date(currentTime.getTime() + kstOffset * 60 * 1000);
+
+      if (currentTime.getMinutes() % 15 === 0) {
+        // 15분마다 사용자의 기기 시간으로 동기화
+        console.log("사용자의 기기 시간과 동기화합니다.");
+        updateMessage(); // 시간 동기화 후 메시지 업데이트
+      }
+    }
+
+    setInterval(updateMessage, 1000); // 1초마다 업데이트
+    setInterval(synchronizeTime, 900000); // 15분마다 동기화
+  </script>
 </body>
+
 </html>
